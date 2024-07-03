@@ -1,6 +1,5 @@
-// components/Game.tsx
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, ImageBackground, Alert } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ImageBackground, Modal, TouchableOpacity } from 'react-native';
 import Ant from './Ant';
 
 const { width, height } = Dimensions.get('window');
@@ -14,6 +13,7 @@ interface AntType {
 const Game: React.FC = () => {
   const [ants, setAnts] = useState<AntType[]>([]);
   const [score, setScore] = useState<number>(0);
+  const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -22,6 +22,9 @@ const Game: React.FC = () => {
   }, []);
 
   const startGame = () => {
+    setScore(0);
+    setAnts([]);
+    setIsGameOver(false);
     intervalRef.current = setInterval(() => {
       const x = Math.floor(Math.random() * (width - 80));
       const y = Math.floor(Math.random() * (height - 80));
@@ -39,7 +42,7 @@ const Game: React.FC = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    Alert.alert('Game Over', `Puntuación final: ${score}`);
+    setIsGameOver(true);
   };
 
   const handleAntPress = (id: number) => {
@@ -49,7 +52,7 @@ const Game: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require('../assets/background.jpg')} // Asegúrate de tener una imagen de fondo en esta ruta
+      source={require('../assets/background.jpg')}
       style={styles.background}
     >
       <View style={styles.container}>
@@ -61,6 +64,24 @@ const Game: React.FC = () => {
             onPress={() => handleAntPress(ant.id)}
           />
         ))}
+        <Modal
+          transparent={true}
+          visible={isGameOver}
+          animationType="slide"
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalText}>Game Over</Text>
+              <Text style={styles.modalText}>Puntuación final: {score}</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={startGame}
+              >
+                <Text style={styles.buttonText}>Reiniciar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     </ImageBackground>
   );
@@ -85,6 +106,33 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     padding: 10,
     borderRadius: 5,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    width: 300,
+    padding: 20,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  button: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: 'black',
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
   },
 });
 

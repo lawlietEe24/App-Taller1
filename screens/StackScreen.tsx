@@ -4,9 +4,13 @@ import React from 'react'
 export default function StackScreen() {
   return (
     <View>
-      <Text>StackScreen</Text>
+      <Text>MATA MATA</Text>
     </View>
   )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  Text:{
+    backgroundColor: 'black',
+  },
+})

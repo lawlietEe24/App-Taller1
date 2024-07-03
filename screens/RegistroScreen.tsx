@@ -1,21 +1,27 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
 
-export default function HomeScreen({ navigation }: any) {
+export default function RegistroScreen({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [age, setAge] = useState('');
+  const [nickname, setNickname] = useState('');
 
-  const handleLogin = () => {
-    // Aquí puedes agregar la lógica de autenticación
-    // Si la autenticación es exitosa, navega a la siguiente pantalla
-    navigation.navigate('Stack');
+  const handleRegister = () => {
+    // Aquí puedes agregar la lógica de registro, por ejemplo, validaciones o envío de datos a un servidor
+    // Si el registro es exitoso, navega a la pantalla 'Stack'
+    if (email && password && age && nickname) {
+      navigation.navigate('Stack');
+    } else {
+      alert('Por favor, complete todos los campos');
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Iniciar Sesión</Text>
+      <Text style={styles.title}>Registro</Text>
       <TextInput
-        placeholder="Ingresar correo"
+        placeholder='Ingresar correo'
         placeholderTextColor="#fff"
         style={styles.input}
         value={email}
@@ -24,33 +30,46 @@ export default function HomeScreen({ navigation }: any) {
         autoCapitalize="none"
       />
       <TextInput
-        placeholder="Ingresar contraseña"
+        placeholder='Ingrese contraseña'
         placeholderTextColor="#fff"
         style={styles.input}
         value={password}
         onChangeText={setPassword}
         secureTextEntry={true}
       />
-      <TouchableOpacity style={styles.btn} onPress={handleLogin}>
-        <Text style={styles.btnText}>Iniciar sesión</Text>
+      <TextInput
+        placeholder='Ingrese edad'
+        placeholderTextColor="#fff"
+        style={styles.input}
+        value={age}
+        onChangeText={setAge}
+        keyboardType='numeric'
+      />
+      <TextInput
+        placeholder='Ingrese apodo'
+        placeholderTextColor="#fff"
+        style={styles.input}
+        value={nickname}
+        onChangeText={setNickname}
+      />
+      <TouchableOpacity style={styles.btn} onPress={handleRegister}>
+        <Text style={styles.btnText}>Inicio de Sesion</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
-        <Text style={styles.registerText}>Registrarse</Text>
-      </TouchableOpacity>
+      
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#333',
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#333',
     padding: 20,
   },
   title: {
-    fontSize: 32,
+    fontSize: 50,
     color: 'yellow',
     marginBottom: 20,
     textShadowColor: '#000',
@@ -81,15 +100,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 5,
   },
+  loginBtn: {
+    backgroundColor: '#448aff'
+  },
   btnText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  registerText: {
-    color: 'yellow',
-    fontSize: 16,
-    marginTop: 20,
-    textDecorationLine: 'underline',
-  },
+  }
 });
