@@ -5,6 +5,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text>Open up App.tsx to start working on your app!</Text>
+      <Text>Changes you make will automatically reload.</Text>
       <StatusBar style="auto" />
     </View>
   );
@@ -17,4 +18,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+
 });
