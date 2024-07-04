@@ -1,52 +1,59 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import React, { useState } from 'react';
 
 export default function HomeScreen({ navigation }: any) {
-  const [email, setEmail] = useState('');
+  const [nickname, setNickname] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // Aquí puedes agregar la lógica de autenticación
-    // Si la autenticación es exitosa, navega a la siguiente pantalla
     navigation.navigate('Stack');
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Iniciar Sesión</Text>
-      <TextInput
-        placeholder="Ingresar correo"
-        placeholderTextColor="#fff"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Ingresar contraseña"
-        placeholderTextColor="#fff"
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry={true}
-      />
-      <TouchableOpacity style={styles.btn} onPress={handleLogin}>
-        <Text style={styles.btnText}>Iniciar sesión</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
-        <Text style={styles.registerText}>Registrarse</Text>
-      </TouchableOpacity>
-    </View>
+    <ImageBackground 
+    source={require('../assets/background2.png')}
+      style={styles.backgroundImage}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Iniciar Sesión</Text>
+        <TextInput
+          placeholder="Ingresar el Nickname"
+          placeholderTextColor="#fff"
+          style={styles.input}
+          value={nickname}
+          onChangeText={setNickname}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+        <TextInput
+          placeholder="Ingresar contraseña"
+          placeholderTextColor="#fff"
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={true}
+        />
+        <TouchableOpacity style={styles.btn} onPress={handleLogin}>
+          <Text style={styles.btnText}>Iniciar sesión</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
+          <Text style={styles.registerText}>Registrarse</Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#333',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Agrega un fondo semi-transparente para mejorar la legibilidad del texto
     padding: 20,
   },
   title: {

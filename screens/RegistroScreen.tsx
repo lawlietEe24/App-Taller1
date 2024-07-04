@@ -1,71 +1,89 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ImageBackground } from 'react-native';
 import React, { useState } from 'react';
+import { db } from '../config/Config';
+import { ref, set } from "firebase/database";
 
 export default function RegistroScreen({ navigation }: any) {
-  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [age, setAge] = useState('');
+  const [edad, setEdad] = useState('');
   const [nickname, setNickname] = useState('');
 
+  /*Guardar */
+  function writeUserData(nickname: String, edad: String, contrasenia: String) {
+    set(ref(db, 'usuarios/' + nickname), {
+      age: edad,
+      password: contrasenia,
+    });
+  }
+
   const handleRegister = () => {
-    // Aquí puedes agregar la lógica de registro, por ejemplo, validaciones o envío de datos a un servidor
-    // Si el registro es exitoso, navega a la pantalla 'Stack'
-    if (email && password && age && nickname) {
+    // Validar que todos los campos estén completos
+    if (password && edad && nickname) {
+      writeUserData(nickname, edad, password);
+      Alert.alert('Registro exitoso');
       navigation.navigate('Stack');
     } else {
-      alert('Por favor, complete todos los campos');
+      Alert.alert('Por favor, complete todos los campos');
     }
   };
 
+  const handleLogin = () => {
+    // Aquí puedes agregar la lógica para el inicio de sesión
+    navigation.navigate('HomeScreen');
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Registro</Text>
-      <TextInput
-        placeholder='Ingresar correo'
-        placeholderTextColor="#fff"
-        style={styles.input}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder='Ingrese contraseña'
-        placeholderTextColor="#fff"
-        style={styles.input}
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry={true}
-      />
-      <TextInput
-        placeholder='Ingrese edad'
-        placeholderTextColor="#fff"
-        style={styles.input}
-        value={age}
-        onChangeText={setAge}
-        keyboardType='numeric'
-      />
-      <TextInput
-        placeholder='Ingrese apodo'
-        placeholderTextColor="#fff"
-        style={styles.input}
-        value={nickname}
-        onChangeText={setNickname}
-      />
-      <TouchableOpacity style={styles.btn} onPress={handleRegister}>
-        <Text style={styles.btnText}>Inicio de Sesion</Text>
-      </TouchableOpacity>
-      
-    </View>
+    <ImageBackground 
+      source={require('../assets/background2.png')}// Cambia esto por la URL de tu imagen o usa require para imágenes locales
+      style={styles.backgroundImage}
+    >
+      <View style={styles.container}>
+        <Text style={styles.title}>Registro</Text>
+
+        <TextInput
+          placeholder='Ingrese un Nickname'
+          placeholderTextColor="#fff"
+          style={styles.input}
+          value={nickname}
+          onChangeText={setNickname}
+        />
+        <TextInput
+          placeholder='Ingrese contraseña'
+          placeholderTextColor="#fff"
+          style={styles.input}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={true}
+        />
+        <TextInput
+          placeholder='Ingrese edad'
+          placeholderTextColor="#fff"
+          style={styles.input}
+          value={edad}
+          onChangeText={setEdad}
+          keyboardType='numeric'
+        />
+        <TouchableOpacity style={styles.btn} onPress={handleRegister}>
+          <Text style={styles.btnText}>Registro</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.btn} onPress={handleLogin}>
+          <Text style={styles.btnText}>Inicio de Sesion</Text>
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
   )
 }
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    resizeMode: 'cover',
+  },
   container: {
-    backgroundColor: '#333',
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Agrega un fondo semi-transparente para mejorar la legibilidad del texto
     padding: 20,
   },
   title: {
@@ -99,9 +117,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
-  },
-  loginBtn: {
-    backgroundColor: '#448aff'
   },
   btnText: {
     color: '#fff',
