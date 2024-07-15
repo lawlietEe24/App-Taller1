@@ -8,13 +8,16 @@ import HomeScreen from '../screens/HomeScreen'
 import SettingsScreen from '../screens/SettingsScreen'
 import RegistroScreen from '../screens/RegistroScreen'
 import Game from '../components/Game'
+import StackScreen from '../screens/StackScreen'
 
 const Stack = createNativeStackNavigator()
 const BottomTab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => (
   <BottomTab.Navigator>
-    <BottomTab.Screen name="Settings" component={SettingsScreen} />
+    <BottomTab.Screen name="Juego" component={Game} />
+    <BottomTab.Screen name="Camara" component={SettingsScreen} />
+    <BottomTab.Screen name="Galeria" component={StackScreen} />
   </BottomTab.Navigator>
 );
 
@@ -24,7 +27,6 @@ const HomeStack = () => {
       <Stack.Navigator initialRouteName="Home">
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Registro" component={RegistroScreen} />
-        <Stack.Screen name="Juego" component={Game} />
         <Stack.Screen name="BottomTabs" component={BottomTabNavigator} />
       </Stack.Navigator>
       </NavigationContainer>

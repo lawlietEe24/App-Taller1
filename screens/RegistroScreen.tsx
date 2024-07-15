@@ -1,36 +1,32 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ImageBackground } from 'react-native';
 import React, { useState } from 'react';
-import { db } from '../config/Config';
-import { ref, set } from "firebase/database";
+import { auth } from '../config/Config';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
 export default function RegistroScreen({ navigation }: any) {
-  const [password, setPassword] = useState('');
-  const [edad, setEdad] = useState('');
-  const [nickname, setNickname] = useState('');
+  const [correo, setCorreo] = useState('');
+    const [contrasenia, setContrasenia] = useState('');
+    const [edad, setEdad] = useState('');
 
-  /*Guardar */
-  function writeUserData(nickname: String, edad: String, contrasenia: String) {
-    set(ref(db, 'usuarios/' + nickname), {
-      age: edad,
-      password: contrasenia,
-    });
-  }
+    function registro() {
+        createUserWithEmailAndPassword(auth, correo, contrasenia)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            console.log(user);
 
-  const handleRegister = () => {
-    // Validar que todos los campos estén completos
-    if (password && edad && nickname) {
-      writeUserData(nickname, edad, password);
-      Alert.alert('Registro exitoso');
-      navigation.navigate('Stack');
-    } else {
-      Alert.alert('Por favor, complete todos los campos');
+            // Aquí puedes almacenar el usuario adicional en tu base de datos
+            // Puedes usar Firebase Firestore o Realtime Database para esto
+
+            navigation.navigate('Home'); // Cambié a navigate en lugar de replace como originalmente tenías
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            console.error(errorCode, errorMessage);
+            Alert.alert('Error', errorMessage);
+        });
     }
-  };
 
-  const handleLogin = () => {
-    // Aquí puedes agregar la lógica para el inicio de sesión
-    navigation.navigate('HomeScreen');
-  };
 
   return (
     <ImageBackground 
@@ -41,20 +37,19 @@ export default function RegistroScreen({ navigation }: any) {
         <Text style={styles.title}>Registro</Text>
 
         <TextInput
-          placeholder='Ingrese un Nickname'
-          placeholderTextColor="#fff"
+          placeholder='Ingresa tu correo electrónico'
+          onChangeText={(texto) => setCorreo(texto)}
+          keyboardType='email-address'
+          value={correo}
           style={styles.input}
-          value={nickname}
-          onChangeText={setNickname}
-        />
+          />
         <TextInput
-          placeholder='Ingrese contraseña'
-          placeholderTextColor="#fff"
+          placeholder='Ingresa contraseña'
+          onChangeText={(texto) => setContrasenia(texto)}
+          secureTextEntry
+          value={contrasenia}
           style={styles.input}
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry={true}
-        />
+          />
         <TextInput
           placeholder='Ingrese edad'
           placeholderTextColor="#fff"
@@ -63,11 +58,8 @@ export default function RegistroScreen({ navigation }: any) {
           onChangeText={setEdad}
           keyboardType='numeric'
         />
-        <TouchableOpacity style={styles.btn} onPress={handleRegister}>
+        <TouchableOpacity style={styles.btn} onPress={registro}>
           <Text style={styles.btnText}>Registro</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btn} onPress={handleLogin}>
-          <Text style={styles.btnText}>Inicio de Sesion</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>

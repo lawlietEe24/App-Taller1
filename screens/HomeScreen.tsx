@@ -1,13 +1,38 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import React, { useState } from 'react';
+import { auth } from '../config/Config';
+import { signInWithEmailAndPassword } from 'firebase/auth';
 
 export default function HomeScreen({ navigation }: any) {
-  const [nickname, setNickname] = useState('');
-  const [password, setPassword] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [contrasenia, setContrasenia] = useState('');
 
-  const handleLogin = () => {
-    navigation.navigate('Juego');
-  };
+  function login() {
+    signInWithEmailAndPassword(auth, correo, contrasenia)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+        navigation.navigate('BottomTabs');
+      })
+      .catch((error:any) => {
+        const errorCode = error.code;
+        let titulo = "";
+        let mensaje = "";
+
+        if (errorCode === "auth/wrong-password") {
+          titulo = "Error de contraseña";
+          mensaje = "La contraseña ingresada es incorrecta";
+        } else if (errorCode === "auth/user-not-found") {
+          titulo = "Error de usuario";
+          mensaje = "El usuario ingresado no existe";
+        } else {
+          titulo = "Error de Acceso";
+          mensaje = "Revisar credenciales";
+        }
+
+        Alert.alert(titulo, mensaje);
+      });
+  }
 
   return (
     <ImageBackground 
@@ -17,23 +42,18 @@ export default function HomeScreen({ navigation }: any) {
       <View style={styles.container}>
         <Text style={styles.title}>Iniciar Sesión</Text>
         <TextInput
-          placeholder="Ingresar el Nickname"
-          placeholderTextColor="#fff"
+          placeholder='Ingresa tu correo electrónico'
+          onChangeText={(texto) => setCorreo(texto)}
+          keyboardType='email-address'
           style={styles.input}
-          value={nickname}
-          onChangeText={setNickname}
-          keyboardType="email-address"
-          autoCapitalize="none"
         />
         <TextInput
-          placeholder="Ingresar contraseña"
-          placeholderTextColor="#fff"
+          placeholder='Ingresa contraseña'
+          onChangeText={(texto) => setContrasenia(texto)}
           style={styles.input}
-          value={password}
-          onChangeText={setPassword}
           secureTextEntry={true}
         />
-        <TouchableOpacity style={styles.btn} onPress={handleLogin}>
+        <TouchableOpacity style={styles.btn} onPress={login}>
           <Text style={styles.btnText}>Iniciar sesión</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
