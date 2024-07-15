@@ -6,7 +6,7 @@ export default function HomeScreen({ navigation }: any) {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    navigation.navigate('Stack');
+    navigation.navigate('Juego');
   };
 
   return (
