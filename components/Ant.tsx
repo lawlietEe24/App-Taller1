@@ -11,7 +11,7 @@ const Ant: React.FC<AntProps> = ({ position, onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={[styles.ant, position]}>
       <Image
-        source={require('../assets/ant.png')} // Asegúrate de tener una imagen de hormiga en esta ruta
+        source={require('../assets/ann.png')} // Asegúrate de tener una imagen de hormiga en esta ruta
         style={styles.image}
       />
     </TouchableOpacity>
@@ -23,8 +23,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   image: {
-    width: 80,
-    height: 80,
+    width: 95,
+    height: 95,
   },
 });
 

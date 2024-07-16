@@ -12,7 +12,7 @@ export default function HomeScreen({ navigation }: any) {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
-        navigation.navigate('BottomTabs');
+        navigation.navigate('MATA- MATA');
       })
       .catch((error:any) => {
         const errorCode = error.code;

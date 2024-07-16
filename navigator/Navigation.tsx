@@ -9,6 +9,7 @@ import SettingsScreen from '../screens/SettingsScreen'
 import RegistroScreen from '../screens/RegistroScreen'
 import Game from '../components/Game'
 import StackScreen from '../screens/StackScreen'
+import WelcomeScreen from '../screens/WelcomeScreen'
 
 const Stack = createNativeStackNavigator()
 const BottomTab = createBottomTabNavigator();
@@ -24,10 +25,11 @@ const BottomTabNavigator = () => (
 const HomeStack = () => {
     return (
       <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Navigator screenOptions={{ headerShown:false}} initialRouteName="Home">
+        <Stack.Screen name="Inicio" component={WelcomeScreen} />
+        <Stack.Screen name="Login" component={HomeScreen} />
         <Stack.Screen name="Registro" component={RegistroScreen} />
-        <Stack.Screen name="BottomTabs" component={BottomTabNavigator} />
+        <Stack.Screen name="MATA- MATA" component={Game} />
       </Stack.Navigator>
       </NavigationContainer>
     );

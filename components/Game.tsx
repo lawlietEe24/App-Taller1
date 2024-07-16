@@ -14,28 +14,53 @@ const Game: React.FC = () => {
   const [ants, setAnts] = useState<AntType[]>([]);
   const [score, setScore] = useState<number>(0);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
+  const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
+  const [difficulty, setDifficulty] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    startGame();
     return () => clearInterval(intervalRef.current!);
   }, []);
 
-  const startGame = () => {
+  const startGame = (difficulty: string) => {
     setScore(0);
     setAnts([]);
     setIsGameOver(false);
+    setIsGameStarted(true);
+    setDifficulty(difficulty);
+
+    let intervalTime: number;
+    let maxAnts: number;
+
+    switch (difficulty) {
+      case 'fácil':
+        intervalTime = 800;
+        maxAnts = 3;
+        break;
+      case 'medio':
+        intervalTime = 500;
+        maxAnts = 3;
+        break;
+      case 'difícil':
+        intervalTime = 200;
+        maxAnts = 3;
+        break;
+      default:
+        intervalTime = 1000;
+        maxAnts = 5;
+    }
+
     intervalRef.current = setInterval(() => {
       const x = Math.floor(Math.random() * (width - 80));
       const y = Math.floor(Math.random() * (height - 80));
       setAnts((prevAnts) => {
-        if (prevAnts.length >= 5) {
+        if (prevAnts.length >= maxAnts) {
           endGame();
           return prevAnts;
         }
         return [...prevAnts, { x, y, id: Date.now() }];
       });
-    }, 1000);
+    }, intervalTime);
   };
 
   const endGame = () => {
@@ -43,6 +68,9 @@ const Game: React.FC = () => {
       clearInterval(intervalRef.current);
     }
     setIsGameOver(true);
+    setIsGameStarted(false);
+    setDifficulty(null);
+    setAnts([]);
   };
 
   const handleAntPress = (id: number) => {
@@ -52,10 +80,23 @@ const Game: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require('../assets/background.jpg')}
+      source={require('../assets/backgroundd.jpg')}
       style={styles.background}
     >
       <View style={styles.container}>
+        {!isGameStarted && !isGameOver && (
+          <>
+            <TouchableOpacity style={styles.startButton} onPress={() => startGame('fácil')}>
+              <Text style={styles.startButtonText}>Fácil</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.startButton} onPress={() => startGame('medio')}>
+              <Text style={styles.startButtonText}>Medio</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.startButton} onPress={() => startGame('difícil')}>
+              <Text style={styles.startButtonText}>Difícil</Text>
+            </TouchableOpacity>
+          </>
+        )}
         <Text style={styles.score}>Puntuación: {score}</Text>
         {ants.map((ant) => (
           <Ant
@@ -64,24 +105,26 @@ const Game: React.FC = () => {
             onPress={() => handleAntPress(ant.id)}
           />
         ))}
-        <Modal
-          transparent={true}
-          visible={isGameOver}
-          animationType="slide"
-        >
-          <View style={styles.modalBackground}>
-            <View style={styles.modalContainer}>
-              <Text style={styles.modalText}>Game Over</Text>
-              <Text style={styles.modalText}>Puntuación final: {score}</Text>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={startGame}
-              >
-                <Text style={styles.buttonText}>Reiniciar</Text>
-              </TouchableOpacity>
+        {isGameOver && (
+          <Modal
+            transparent={true}
+            visible={isGameOver}
+            animationType="slide"
+          >
+            <View style={styles.modalBackground}>
+              <View style={styles.modalContainer}>
+                <Text style={styles.modalText}>Game Over</Text>
+                <Text style={styles.modalText}>Puntuación final: {score}</Text>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => setIsGameOver(false)}
+                >
+                  <Text style={styles.buttonText}>Aceptar</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </Modal>
+          </Modal>
+        )}
       </View>
     </ImageBackground>
   );
@@ -133,6 +176,17 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  startButton: {
+    padding: 15,
+    backgroundColor: 'green',
+    borderRadius: 5,
+    marginBottom: 20,
+  },
+  startButtonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 
