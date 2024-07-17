@@ -3,11 +3,11 @@
     "name": "App-Taller1",
     "slug": "App-Taller1",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "all",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/images/girar.gif",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -16,12 +16,21 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/images/mosca.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.aarxn.AppTaller1"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bc6d1df7-a3a3-4efb-8cd8-3309d5e89301"
+      }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }

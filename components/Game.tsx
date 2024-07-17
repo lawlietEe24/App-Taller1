@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Dimensions, ImageBackground, Modal, TouchableOpacity } from 'react-native';
+import { Audio } from 'expo-av';
 import Ant from './Ant';
 
 const { width, height } = Dimensions.get('window');
@@ -17,10 +18,27 @@ const Game: React.FC = () => {
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
   const [difficulty, setDifficulty] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
 
   useEffect(() => {
     return () => clearInterval(intervalRef.current!);
   }, []);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
+  const playSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+       require('../assets/sounds/gameover.mp3') // Asegúrate de tener un archivo de sonido aquí
+    );
+    setSound(sound);
+    await sound.playAsync();
+  };
 
   const startGame = (difficulty: string) => {
     setScore(0);
@@ -34,15 +52,15 @@ const Game: React.FC = () => {
 
     switch (difficulty) {
       case 'fácil':
-        intervalTime = 800;
+        intervalTime = 750;
         maxAnts = 3;
         break;
       case 'medio':
-        intervalTime = 500;
+        intervalTime = 450;
         maxAnts = 3;
         break;
       case 'difícil':
-        intervalTime = 200;
+        intervalTime = 250;
         maxAnts = 3;
         break;
       default:
@@ -67,6 +85,7 @@ const Game: React.FC = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
+    playSound();
     setIsGameOver(true);
     setIsGameStarted(false);
     setDifficulty(null);
@@ -189,5 +208,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
 export default Game;

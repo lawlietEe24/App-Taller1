@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth } from '../config/Config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 
@@ -7,14 +7,23 @@ export default function HomeScreen({ navigation }: any) {
   const [correo, setCorreo] = useState('');
   const [contrasenia, setContrasenia] = useState('');
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      setCorreo('');
+      setContrasenia('');
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   function login() {
     signInWithEmailAndPassword(auth, correo, contrasenia)
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
-        navigation.navigate('MATA- MATA');
+        navigation.navigate('Drawer');
       })
-      .catch((error:any) => {
+      .catch((error: any) => {
         const errorCode = error.code;
         let titulo = "";
         let mensaje = "";
@@ -35,8 +44,8 @@ export default function HomeScreen({ navigation }: any) {
   }
 
   return (
-    <ImageBackground 
-    source={require('../assets/background2.png')}
+    <ImageBackground
+      source={require('../assets/background2.png')}
       style={styles.backgroundImage}
     >
       <View style={styles.container}>
@@ -45,13 +54,17 @@ export default function HomeScreen({ navigation }: any) {
           placeholder='Ingresa tu correo electrónico'
           onChangeText={(texto) => setCorreo(texto)}
           keyboardType='email-address'
+          placeholderTextColor="#aaa" // Color del placeholder
           style={styles.input}
+          value={correo}
         />
         <TextInput
           placeholder='Ingresa contraseña'
           onChangeText={(texto) => setContrasenia(texto)}
           style={styles.input}
+          placeholderTextColor="#aaa" // Color del placeholder
           secureTextEntry={true}
+          value={contrasenia}
         />
         <TouchableOpacity style={styles.btn} onPress={login}>
           <Text style={styles.btnText}>Iniciar sesión</Text>
@@ -73,30 +86,30 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Agrega un fondo semi-transparente para mejorar la legibilidad del texto
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fondo semi-transparente para mejorar la legibilidad del texto
     padding: 20,
   },
   title: {
-    fontSize: 32,
-    color: 'yellow',
+    fontSize: 40,
+    color: 'lightblue',
     marginBottom: 20,
-    textShadowColor: '#000',
-    textShadowOffset: { width: 2, height: 2 },
+    textShadowColor: 'rgba(0, 0, 0, 0.75)',
+    textShadowOffset: { width: -5, height: 5 },
     textShadowRadius: 3,
   },
   input: {
-    backgroundColor: '#444',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     height: 50,
     width: "100%",
     margin: 10,
     borderRadius: 10,
-    borderColor: 'yellow',
+    borderColor: 'lightblue',
     borderWidth: 2,
     paddingHorizontal: 20,
     color: '#fff',
   },
   btn: {
-    backgroundColor: '#ff4444',
+    backgroundColor: 'rgba(255, 68, 68, 0.8)',
     width: 150,
     height: 50,
     borderRadius: 25,
@@ -114,7 +127,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   registerText: {
-    color: 'yellow',
+    color: 'lightblue',
     fontSize: 16,
     marginTop: 20,
     textDecorationLine: 'underline',
