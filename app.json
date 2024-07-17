@@ -4,7 +4,7 @@
     "slug": "App-Taller1",
     "version": "1.0.0",
     "orientation": "all",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/mosca.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/images/girar.gif",

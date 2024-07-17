@@ -1,32 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, ImageBackground } from 'react-native';
-import * as Font from 'expo-font';
+import { useFonts } from 'expo-font';
 
 export default function WelcomeScreen({ navigation }: any) {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  const loadFonts = async () => {
-    try {
-      await Font.loadAsync({
-        'Oswald-Bold': require('../assets/fonts/Oswald-Bold.ttf'), // Verifica que la ruta sea correcta
-      });
-      setFontsLoaded(true);
-      console.log("Font loaded successfully");
-    } catch (error) {
-      console.error("Error loading font: ", error);
-    }
-  };
+  const [loaded, error] = useFonts({
+    'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
+    'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
+  });
 
   useEffect(() => {
-    loadFonts();
-  }, []);
+  }, [loaded, error]);
 
-  if (!fontsLoaded) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    ); // Muestra un texto mientras se cargan las fuentes
+  if (!loaded && !error) {
+    return null;
   }
 
   return (
@@ -35,14 +21,16 @@ export default function WelcomeScreen({ navigation }: any) {
       style={styles.background}
     >
       <View style={styles.container}>
-        <Text style={styles.title}>Bienvenidos al Juego!</Text>
+        <Text style={styles.title}>Bienvenidos!!</Text>
         <Text style={styles.subtitle}>¡MATA - MATA!</Text>
-        <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.btnText}>Iniciar Sesión</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('Registro')}>
-          <Text style={styles.btnText}>Registrarse</Text>
-        </TouchableOpacity>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('Login')}>
+            <Text style={styles.btnText}>Iniciar Sesión</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.btn} onPress={() => navigation.navigate('Registro')}>
+            <Text style={styles.btnText}>Registrarse</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ImageBackground>
   );
@@ -61,32 +49,34 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start', // Cambio para alinear los elementos en la parte superior
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
     padding: 20,
+    paddingTop: 50, // Añadir paddingTop para bajar todo el contenido
   },
   title: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: 55,
+    marginBottom: 1, // Reducir margen inferior
     color: 'white',
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: -5, height: 5 },
     textShadowRadius: 10,
-    fontFamily: 'Oswald-Bold', // Usando la fuente personalizada
+    fontFamily: 'Pixel',
   },
   subtitle: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontSize: 45,
+    marginBottom: 50, // Aumentar margen inferior para separar los botones
     color: 'white',
     textAlign: 'center',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: -5, height: 5 },
     textShadowRadius: 10,
-    fontFamily: 'Oswald-Bold', // Usando la fuente personalizada
+    fontFamily: 'Pixel'
+  },
+  btnContainer: {
+    marginTop: 400, // Añadir margen superior para separar los botones del subtítulo
   },
   btn: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',
@@ -103,8 +93,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    fontFamily: 'Oswald-Bold', // Usando la fuente personalizada
+    fontSize: 20,
+    fontFamily: 'Oswald',
   }
 });

@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ImageBackground, Image } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { getDatabase, ref, set } from 'firebase/database';
 import { getDownloadURL, uploadBytesResumable, ref as refe } from 'firebase/storage';
 import * as ImagePicker from 'expo-image-picker';
 import { auth, storage } from '../config/Config';
+import { useFonts } from 'expo-font';
 
 export default function RegistroScreen({ navigation }: any) {
   const [correo, setCorreo] = useState('');
@@ -12,6 +13,19 @@ export default function RegistroScreen({ navigation }: any) {
   const [edad, setEdad] = useState('');
   const [imageUri, setImageUri] = useState('');
   const [uploading, setUploading] = useState(false);
+
+  const [loaded, error] = useFonts({
+    'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
+    'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
+    //'Ola': require('../assets/fonts/RubikPixels-Regular.ttf'),
+  });
+
+  useEffect(() => {
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   async function pickImage() { 
     let result = await ImagePicker.launchImageLibraryAsync({ 
@@ -137,7 +151,7 @@ export default function RegistroScreen({ navigation }: any) {
           onChangeText={setCorreo}
           keyboardType='email-address'
           value={correo}
-          placeholderTextColor="#aaa" // Color del placeholder
+          placeholderTextColor="black" // Color del placeholder
           style={styles.input}
         />
         <TextInput
@@ -145,12 +159,12 @@ export default function RegistroScreen({ navigation }: any) {
           onChangeText={setContrasenia}
           secureTextEntry
           value={contrasenia}
-          placeholderTextColor="#aaa" // Color del placeholder
+          placeholderTextColor="black" // Color del placeholder
           style={styles.input}
         />
         <TextInput
           placeholder='Ingrese edad'
-          placeholderTextColor="#aaa" // Color del placeholder
+          placeholderTextColor="black" // Color del placeholder
           style={styles.input}
           value={edad}
           onChangeText={setEdad}
@@ -194,27 +208,30 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     padding: 20,
   },
   title: {
-    fontSize: 40,
+    fontSize: 50,
     color: 'lightblue',
     marginBottom: 20,
+    fontFamily: 'Pixel',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: -5, height: 5 },
     textShadowRadius: 3,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 15,
     height: 50,
     width: "100%",
     margin: 10,
+    fontFamily: 'Oswald',
     borderRadius: 10,
     borderColor: 'lightblue',
     borderWidth: 2,
     paddingHorizontal: 20,
-    color: '#fff',
+    //color: '#fff',
   },
   buttonContainer: {
     flexDirection: 'row',
@@ -237,8 +254,8 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Oswald',
   },
   imagePreviewContainer: {
     alignItems: 'center',
@@ -265,8 +282,8 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: {
     color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Oswald'
   },
   registerButton: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',

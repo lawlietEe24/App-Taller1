@@ -2,11 +2,23 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, A
 import React, { useState, useEffect } from 'react';
 import { auth } from '../config/Config';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useFonts } from 'expo-font';
 
 export default function HomeScreen({ navigation }: any) {
   const [correo, setCorreo] = useState('');
   const [contrasenia, setContrasenia] = useState('');
 
+  const [loaded, error] = useFonts({
+    'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
+    'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
+  });
+
+  useEffect(() => {
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
       setCorreo('');
@@ -54,7 +66,7 @@ export default function HomeScreen({ navigation }: any) {
           placeholder='Ingresa tu correo electrónico'
           onChangeText={(texto) => setCorreo(texto)}
           keyboardType='email-address'
-          placeholderTextColor="#aaa" // Color del placeholder
+          placeholderTextColor="black" // Color del placeholder
           style={styles.input}
           value={correo}
         />
@@ -62,17 +74,18 @@ export default function HomeScreen({ navigation }: any) {
           placeholder='Ingresa contraseña'
           onChangeText={(texto) => setContrasenia(texto)}
           style={styles.input}
-          placeholderTextColor="#aaa" // Color del placeholder
+          placeholderTextColor="black" // Color del placeholder
           secureTextEntry={true}
           value={contrasenia}
         />
+        
         <TouchableOpacity style={styles.btn} onPress={login}>
           <Text style={styles.btnText}>Iniciar sesión</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
           <Text style={styles.registerText}>Registrarse</Text>
         </TouchableOpacity>
-      </View>
+        </View>
     </ImageBackground>
   );
 }
@@ -86,27 +99,30 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fondo semi-transparente para mejorar la legibilidad del texto
+    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Fondo semi-transparente para mejorar la legibilidad del texto
     padding: 20,
   },
   title: {
-    fontSize: 40,
+    fontSize: 50,
     color: 'lightblue',
     marginBottom: 20,
+    fontFamily: 'Pixel',
     textShadowColor: 'rgba(0, 0, 0, 0.75)',
     textShadowOffset: { width: -5, height: 5 },
     textShadowRadius: 3,
   },
   input: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    fontSize: 15,
     height: 50,
     width: "100%",
     margin: 10,
+    fontFamily: 'Oswald',
     borderRadius: 10,
     borderColor: 'lightblue',
     borderWidth: 2,
     paddingHorizontal: 20,
-    color: '#fff',
+    //color: '#fff',
   },
   btn: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',
@@ -123,13 +139,14 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 20,
+    fontFamily: 'Oswald',
   },
   registerText: {
     color: 'lightblue',
-    fontSize: 16,
-    marginTop: 20,
+    fontSize: 20,
+    marginTop: 10,
+    fontFamily: 'Oswald',
     textDecorationLine: 'underline',
   },
 });

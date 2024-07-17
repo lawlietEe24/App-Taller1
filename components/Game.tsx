@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Dimensions, ImageBackground, Modal, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
 import Ant from './Ant';
+import { useFonts } from 'expo-font';
 
 const { width, height } = Dimensions.get('window');
 
@@ -13,35 +14,81 @@ interface AntType {
 
 const Game: React.FC = () => {
   const [ants, setAnts] = useState<AntType[]>([]);
-  const [score, setScore] = useState<number>(0);
+  const [score, setScore] = useState<number>(100);  // Puntuación inicial ajustada a 100
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
   const [difficulty, setDifficulty] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [gameOverSound, setGameOverSound] = useState<Audio.Sound | null>(null);
+  const [scoreSound, setScoreSound] = useState<Audio.Sound | null>(null);
+  const [antSquishSound, setAntSquishSound] = useState<Audio.Sound | null>(null); // Estado para el sonido de aplastar hormiga
+
+  const [loaded, error] = useFonts({
+    'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
+    'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
+  });
+
+  useEffect(() => {
+  }, [loaded, error]);
+
+  if (!loaded && !error) {
+    return null;
+  }
 
   useEffect(() => {
     return () => clearInterval(intervalRef.current!);
   }, []);
 
   useEffect(() => {
-    return sound
+    return gameOverSound
       ? () => {
-          sound.unloadAsync();
+          gameOverSound.unloadAsync();
         }
       : undefined;
-  }, [sound]);
+  }, [gameOverSound]);
 
-  const playSound = async () => {
+  useEffect(() => {
+    return scoreSound
+      ? () => {
+          scoreSound.unloadAsync();
+        }
+      : undefined;
+  }, [scoreSound]);
+
+  useEffect(() => {
+    return antSquishSound
+      ? () => {
+          antSquishSound.unloadAsync();
+        }
+      : undefined;
+  }, [antSquishSound]);
+
+  const playGameOverSound = async () => {
     const { sound } = await Audio.Sound.createAsync(
        require('../assets/sounds/gameover.mp3') // Asegúrate de tener un archivo de sonido aquí
     );
-    setSound(sound);
+    setGameOverSound(sound);
+    await sound.playAsync();
+  };
+
+  const playScoreSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+       require('../assets/sounds/win.mp3') // Asegúrate de tener un archivo de sonido aquí
+    );
+    setScoreSound(sound);
+    await sound.playAsync();
+  };
+
+  const playAntSquishSound = async () => {
+    const { sound } = await Audio.Sound.createAsync(
+       require('../assets/sounds/jaja.mp3') // Asegúrate de tener un archivo de sonido aquí
+    );
+    setAntSquishSound(sound);
     await sound.playAsync();
   };
 
   const startGame = (difficulty: string) => {
-    setScore(0);
+    setScore(100); // Ajusta la puntuación inicial a 100
     setAnts([]);
     setIsGameOver(false);
     setIsGameStarted(true);
@@ -85,7 +132,7 @@ const Game: React.FC = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    playSound();
+    playGameOverSound();
     setIsGameOver(true);
     setIsGameStarted(false);
     setDifficulty(null);
@@ -94,7 +141,16 @@ const Game: React.FC = () => {
 
   const handleAntPress = (id: number) => {
     setAnts((prevAnts) => prevAnts.filter((ant) => ant.id !== id));
-    setScore((prevScore) => prevScore + 1);
+    playAntSquishSound(); // Reproduce el sonido al aplastar una hormiga
+    setScore((prevScore) => {
+      const newScore = prevScore + 1;
+
+      if ((newScore - 100) % 10 === 0) { // Reproduce el sonido de puntuación cada 10 puntos a partir de 100
+        playScoreSound();
+      }
+
+      return newScore;
+    });
   };
 
   return (
@@ -165,9 +221,10 @@ const styles = StyleSheet.create({
     top: 50,
     fontSize: 24,
     color: 'black',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
     padding: 10,
     borderRadius: 5,
+    fontFamily: 'Pixel'
   },
   modalBackground: {
     flex: 1,
@@ -183,8 +240,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalText: {
-    fontSize: 18,
+    fontSize: 22,
     marginBottom: 10,
+    fontFamily: 'Pixel'
   },
   button: {
     marginTop: 20,
@@ -193,8 +251,9 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   buttonText: {
-    color: 'white',
-    fontSize: 16,
+    color: '#fff',
+    fontSize: 22,
+    fontFamily: 'Pixel'
   },
   startButton: {
     padding: 15,
@@ -204,8 +263,9 @@ const styles = StyleSheet.create({
   },
   startButtonText: {
     color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontFamily: 'Pixel'
   },
 });
+
 export default Game;
