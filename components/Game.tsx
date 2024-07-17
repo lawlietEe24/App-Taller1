@@ -14,22 +14,21 @@ interface AntType {
 
 const Game: React.FC = () => {
   const [ants, setAnts] = useState<AntType[]>([]);
-  const [score, setScore] = useState<number>(100);  // Puntuación inicial ajustada a 100
+  const [score, setScore] = useState<number>(0);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
-  const [difficulty, setDifficulty] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [gameOverSound, setGameOverSound] = useState<Audio.Sound | null>(null);
   const [scoreSound, setScoreSound] = useState<Audio.Sound | null>(null);
-  const [antSquishSound, setAntSquishSound] = useState<Audio.Sound | null>(null); // Estado para el sonido de aplastar hormiga
+  const [antSquishSound, setAntSquishSound] = useState<Audio.Sound | null>(null);
+  const [startGameSound, setStartGameSound] = useState<Audio.Sound | null>(null);
 
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
     'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
   });
 
-  useEffect(() => {
-  }, [loaded, error]);
+  useEffect(() => {}, [loaded, error]);
 
   if (!loaded && !error) {
     return null;
@@ -63,9 +62,17 @@ const Game: React.FC = () => {
       : undefined;
   }, [antSquishSound]);
 
+  useEffect(() => {
+    return startGameSound
+      ? () => {
+          startGameSound.unloadAsync();
+        }
+      : undefined;
+  }, [startGameSound]);
+
   const playGameOverSound = async () => {
     const { sound } = await Audio.Sound.createAsync(
-       require('../assets/sounds/gameover.mp3') // Asegúrate de tener un archivo de sonido aquí
+      require('../assets/sounds/gameover.mp3')
     );
     setGameOverSound(sound);
     await sound.playAsync();
@@ -73,53 +80,76 @@ const Game: React.FC = () => {
 
   const playScoreSound = async () => {
     const { sound } = await Audio.Sound.createAsync(
-       require('../assets/sounds/win.mp3') // Asegúrate de tener un archivo de sonido aquí
+      require('../assets/sounds/win.mp3')
     );
     setScoreSound(sound);
     await sound.playAsync();
   };
 
-  const playAntSquishSound = async () => {
+  // const playAntSquishSound = async () => {
+  //   const { sound } = await Audio.Sound.createAsync(
+  //     require('../assets/sounds/xd.mp3')
+  //   );
+  //   setAntSquishSound(sound);
+  //   await sound.playAsync();
+  // };
+
+  const playStartGameSound = async () => {
     const { sound } = await Audio.Sound.createAsync(
-       require('../assets/sounds/jaja.mp3') // Asegúrate de tener un archivo de sonido aquí
+      require('../assets/sounds/inicio.mp3') // Asegúrate de tener un archivo de sonido aquí
     );
-    setAntSquishSound(sound);
+    setStartGameSound(sound);
     await sound.playAsync();
   };
 
-  const startGame = (difficulty: string) => {
-    setScore(100); // Ajusta la puntuación inicial a 100
+  const startGame = () => {
+    playStartGameSound(); // Reproduce el sonido al empezar el juego
+    setScore(0);
     setAnts([]);
     setIsGameOver(false);
     setIsGameStarted(true);
-    setDifficulty(difficulty);
 
+    let intervalTime: number = 750;
+
+    intervalRef.current = setInterval(() => {
+      const x = Math.floor(Math.random() * (width - 80));
+      const y = Math.floor(Math.random() * (height - 80));
+      setAnts((prevAnts) => {
+        if (prevAnts.length >= 3) {
+          endGame();
+          return prevAnts;
+        }
+        return [...prevAnts, { x, y, id: Date.now() }];
+      });
+    }, intervalTime);
+  };
+
+  const adjustDifficulty = (currentScore: number) => {
     let intervalTime: number;
-    let maxAnts: number;
 
-    switch (difficulty) {
-      case 'fácil':
-        intervalTime = 750;
-        maxAnts = 3;
-        break;
-      case 'medio':
-        intervalTime = 450;
-        maxAnts = 3;
-        break;
-      case 'difícil':
-        intervalTime = 250;
-        maxAnts = 3;
-        break;
-      default:
-        intervalTime = 1000;
-        maxAnts = 5;
+    if (currentScore >= 500) {
+      intervalTime = 200;
+    } else if (currentScore >= 400) {
+      intervalTime = 250;
+    } else if (currentScore >= 300) {
+      intervalTime = 350;
+    } else if (currentScore >= 200) {
+      intervalTime = 450;
+    } else if (currentScore >= 100) {
+      intervalTime = 550;
+    } else {
+      intervalTime = 750;
+    }
+
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
     }
 
     intervalRef.current = setInterval(() => {
       const x = Math.floor(Math.random() * (width - 80));
       const y = Math.floor(Math.random() * (height - 80));
       setAnts((prevAnts) => {
-        if (prevAnts.length >= maxAnts) {
+        if (prevAnts.length >= 3) {
           endGame();
           return prevAnts;
         }
@@ -135,18 +165,21 @@ const Game: React.FC = () => {
     playGameOverSound();
     setIsGameOver(true);
     setIsGameStarted(false);
-    setDifficulty(null);
     setAnts([]);
   };
 
   const handleAntPress = (id: number) => {
     setAnts((prevAnts) => prevAnts.filter((ant) => ant.id !== id));
-    playAntSquishSound(); // Reproduce el sonido al aplastar una hormiga
+    // playAntSquishSound(); // Comenta esta línea para desactivar el sonido de "xd"
     setScore((prevScore) => {
-      const newScore = prevScore + 1;
+      const newScore = prevScore + 10;
 
-      if ((newScore - 100) % 10 === 0) { // Reproduce el sonido de puntuación cada 10 puntos a partir de 100
+      if (newScore % 100 === 0) {
         playScoreSound();
+      }
+
+      if (newScore % 100 === 0) {
+        adjustDifficulty(newScore);
       }
 
       return newScore;
@@ -160,17 +193,9 @@ const Game: React.FC = () => {
     >
       <View style={styles.container}>
         {!isGameStarted && !isGameOver && (
-          <>
-            <TouchableOpacity style={styles.startButton} onPress={() => startGame('fácil')}>
-              <Text style={styles.startButtonText}>Fácil</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.startButton} onPress={() => startGame('medio')}>
-              <Text style={styles.startButtonText}>Medio</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.startButton} onPress={() => startGame('difícil')}>
-              <Text style={styles.startButtonText}>Difícil</Text>
-            </TouchableOpacity>
-          </>
+          <TouchableOpacity style={styles.startButton} onPress={startGame}>
+            <Text style={styles.startButtonText}>Start Game</Text>
+          </TouchableOpacity>
         )}
         <Text style={styles.score}>Puntuación: {score}</Text>
         {ants.map((ant) => (

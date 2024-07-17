@@ -1,24 +1,29 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { auth } from '../config/Config';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { Audio } from 'expo-av';
 import { useFonts } from 'expo-font';
+import { auth } from '../config/Config'; // Asegúrate de importar tu configuración de Firebase
 
-export default function HomeScreen({ navigation }: any) {
+const HomeScreen = ({ navigation }: any) => {
   const [correo, setCorreo] = useState('');
   const [contrasenia, setContrasenia] = useState('');
-
+  const [loginSound, setLoginSound] = useState<Audio.Sound | null>(null);
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
     'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
   });
 
   useEffect(() => {
-  }, [loaded, error]);
+    const loadSounds = async () => {
+      const { sound } = await Audio.Sound.createAsync(
+        require('../assets/sounds/go.mp3')
+      );
+      setLoginSound(sound);
+    };
+    loadSounds();
+  }, []);
 
-  if (!loaded && !error) {
-    return null;
-  }
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
       setCorreo('');
@@ -33,26 +38,33 @@ export default function HomeScreen({ navigation }: any) {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
+        if (loginSound) {
+          loginSound.replayAsync(); // Reproduce el sonido al iniciar sesión
+        }
         navigation.navigate('Drawer');
       })
       .catch((error: any) => {
         const errorCode = error.code;
-        let titulo = "";
-        let mensaje = "";
+        let titulo = '';
+        let mensaje = '';
 
-        if (errorCode === "auth/wrong-password") {
-          titulo = "Error de contraseña";
-          mensaje = "La contraseña ingresada es incorrecta";
-        } else if (errorCode === "auth/user-not-found") {
-          titulo = "Error de usuario";
-          mensaje = "El usuario ingresado no existe";
+        if (errorCode === 'auth/wrong-password') {
+          titulo = 'Error de contraseña';
+          mensaje = 'La contraseña ingresada es incorrecta';
+        } else if (errorCode === 'auth/user-not-found') {
+          titulo = 'Error de usuario';
+          mensaje = 'El usuario ingresado no existe';
         } else {
-          titulo = "Error de Acceso";
-          mensaje = "Revisar credenciales";
+          titulo = 'Error de Acceso';
+          mensaje = 'Revisar credenciales';
         }
 
         Alert.alert(titulo, mensaje);
       });
+  }
+
+  if (!loaded && !error) {
+    return null;
   }
 
   return (
@@ -66,7 +78,7 @@ export default function HomeScreen({ navigation }: any) {
           placeholder='Ingresa tu correo electrónico'
           onChangeText={(texto) => setCorreo(texto)}
           keyboardType='email-address'
-          placeholderTextColor="black" // Color del placeholder
+          placeholderTextColor="black"
           style={styles.input}
           value={correo}
         />
@@ -74,7 +86,7 @@ export default function HomeScreen({ navigation }: any) {
           placeholder='Ingresa contraseña'
           onChangeText={(texto) => setContrasenia(texto)}
           style={styles.input}
-          placeholderTextColor="black" // Color del placeholder
+          placeholderTextColor="black"
           secureTextEntry={true}
           value={contrasenia}
         />
@@ -82,13 +94,14 @@ export default function HomeScreen({ navigation }: any) {
         <TouchableOpacity style={styles.btn} onPress={login}>
           <Text style={styles.btnText}>Iniciar sesión</Text>
         </TouchableOpacity>
+        
         <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
           <Text style={styles.registerText}>Registrarse</Text>
         </TouchableOpacity>
-        </View>
+      </View>
     </ImageBackground>
   );
-}
+};
 
 const styles = StyleSheet.create({
   backgroundImage: {
@@ -99,7 +112,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)', // Fondo semi-transparente para mejorar la legibilidad del texto
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     padding: 20,
   },
   title: {
@@ -122,7 +135,6 @@ const styles = StyleSheet.create({
     borderColor: 'lightblue',
     borderWidth: 2,
     paddingHorizontal: 20,
-    //color: '#fff',
   },
   btn: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',
@@ -150,3 +162,5 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
   },
 });
+
+export default HomeScreen;
