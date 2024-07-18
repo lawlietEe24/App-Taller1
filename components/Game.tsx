@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, ImageBackground, Modal, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ImageBackground, Modal, TouchableOpacity, Image } from 'react-native';
 import { Audio } from 'expo-av';
-import Ant from './Ant';
 import { useFonts } from 'expo-font';
 
 const { width, height } = Dimensions.get('window');
+const topBoundary = height * 0.5;
 
 interface AntType {
   id: number;
@@ -12,108 +12,145 @@ interface AntType {
   y: number;
 }
 
+interface AntProps {
+  position: { left: number; top: number };
+  onPress: () => void;
+  image: any; // Cambié a any para facilitar la asignación dinámica de imagen
+}
+
+const Ant: React.FC<AntProps> = ({ position, onPress, image }) => {
+  return (
+    <TouchableOpacity
+      style={[styles.antContainer, position]}
+      onPress={onPress}
+    >
+      <Image source={image} style={styles.ant} />
+    </TouchableOpacity>
+  );
+};
+
 const Game: React.FC = () => {
   const [ants, setAnts] = useState<AntType[]>([]);
   const [score, setScore] = useState<number>(0);
+  const [level, setLevel] = useState<number>(1);
   const [isGameOver, setIsGameOver] = useState<boolean>(false);
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false);
+  const [isModeSelection, setIsModeSelection] = useState<boolean>(true);
+  const [mode, setMode] = useState<string | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [gameOverSound, setGameOverSound] = useState<Audio.Sound | null>(null);
   const [scoreSound, setScoreSound] = useState<Audio.Sound | null>(null);
-  const [antSquishSound, setAntSquishSound] = useState<Audio.Sound | null>(null);
   const [startGameSound, setStartGameSound] = useState<Audio.Sound | null>(null);
+  const [antImage, setAntImage] = useState<any>(require('../assets/mosca3.png')); // Cambié a any para facilitar la asignación dinámica de imagen
 
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
     'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
   });
 
-  useEffect(() => {}, [loaded, error]);
-
-  if (!loaded && !error) {
-    return null;
-  }
-
   useEffect(() => {
-    return () => clearInterval(intervalRef.current!);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
-    return gameOverSound
-      ? () => {
-          gameOverSound.unloadAsync();
-        }
-      : undefined;
-  }, [gameOverSound]);
+    if (!loaded && !error) {
+      return;
+    }
 
-  useEffect(() => {
-    return scoreSound
-      ? () => {
-          scoreSound.unloadAsync();
-        }
-      : undefined;
-  }, [scoreSound]);
+    const loadSounds = async () => {
+      const gameOver = await Audio.Sound.createAsync(
+        require('../assets/sounds/gameover.mp3')
+      );
+      setGameOverSound(gameOver.sound);
 
-  useEffect(() => {
-    return antSquishSound
-      ? () => {
-          antSquishSound.unloadAsync();
-        }
-      : undefined;
-  }, [antSquishSound]);
+      const scoreWin = await Audio.Sound.createAsync(
+        require('../assets/sounds/winnn.mp3')
+      );
+      setScoreSound(scoreWin.sound);
 
-  useEffect(() => {
-    return startGameSound
-      ? () => {
-          startGameSound.unloadAsync();
-        }
-      : undefined;
-  }, [startGameSound]);
+      const gameStart = await Audio.Sound.createAsync(
+        require('../assets/sounds/inicio.mp3')
+      );
+      setStartGameSound(gameStart.sound);
+    };
+
+    loadSounds();
+
+    return () => {
+      if (gameOverSound) {
+        gameOverSound.unloadAsync();
+      }
+      if (scoreSound) {
+        scoreSound.unloadAsync();
+      }
+      if (startGameSound) {
+        startGameSound.unloadAsync();
+      }
+    };
+  }, [loaded, error]);
+
+  const playSound = async (soundObject: Audio.Sound | null, soundFile: any) => {
+    if (soundObject) {
+      await soundObject.unloadAsync();
+    }
+
+    const { sound } = await Audio.Sound.createAsync(soundFile);
+    await sound.playAsync();
+    return sound;
+  };
 
   const playGameOverSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/gameover.mp3')
-    );
-    setGameOverSound(sound);
-    await sound.playAsync();
+    await playSound(gameOverSound, require('../assets/sounds/gameover.mp3'));
   };
 
   const playScoreSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/win.mp3')
-    );
-    setScoreSound(sound);
-    await sound.playAsync();
+    await playSound(scoreSound, require('../assets/sounds/winnn.mp3'));
   };
-
-  // const playAntSquishSound = async () => {
-  //   const { sound } = await Audio.Sound.createAsync(
-  //     require('../assets/sounds/xd.mp3')
-  //   );
-  //   setAntSquishSound(sound);
-  //   await sound.playAsync();
-  // };
 
   const playStartGameSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('../assets/sounds/inicio.mp3') // Asegúrate de tener un archivo de sonido aquí
-    );
-    setStartGameSound(sound);
-    await sound.playAsync();
+    await playSound(startGameSound, require('../assets/sounds/inicio.mp3'));
   };
 
-  const startGame = () => {
-    playStartGameSound(); // Reproduce el sonido al empezar el juego
+  const startGame = (selectedMode: string) => {
+    playStartGameSound();
+    setMode(selectedMode);
     setScore(0);
+    setLevel(1);
     setAnts([]);
     setIsGameOver(false);
     setIsGameStarted(true);
+    setIsModeSelection(false);
 
-    let intervalTime: number = 750;
+    let intervalTime: number;
+    let antImage: any;
+
+    switch (selectedMode) {
+      case 'Noob':
+        intervalTime = 750;
+        antImage = require('../assets/mosca3.png');
+        break;
+      case 'Pro':
+        intervalTime = 500;
+        antImage = require('../assets/mosca2.png');
+        break;
+      case 'Master':
+        intervalTime = 250;
+        antImage = require('../assets/mosca1.png');
+        break;
+      default:
+        intervalTime = 750;
+        antImage = require('../assets/mosca3.png');
+    }
+
+    setAntImage(antImage);
 
     intervalRef.current = setInterval(() => {
       const x = Math.floor(Math.random() * (width - 80));
-      const y = Math.floor(Math.random() * (height - 80));
+      const y = Math.floor(Math.random() * (height - topBoundary) + topBoundary);
       setAnts((prevAnts) => {
         if (prevAnts.length >= 3) {
           endGame();
@@ -124,38 +161,17 @@ const Game: React.FC = () => {
     }, intervalTime);
   };
 
-  const adjustDifficulty = (currentScore: number) => {
-    let intervalTime: number;
-
-    if (currentScore >= 500) {
-      intervalTime = 200;
-    } else if (currentScore >= 400) {
-      intervalTime = 250;
-    } else if (currentScore >= 300) {
-      intervalTime = 350;
-    } else if (currentScore >= 200) {
-      intervalTime = 450;
-    } else if (currentScore >= 100) {
-      intervalTime = 550;
-    } else {
-      intervalTime = 750;
+  const adjustLevel = (newScore: number) => {
+    if (newScore >= 100) {
+      setLevel(3);
+      setIsGameStarted(false);
+      setIsGameOver(true);
+      playScoreSound(); // Reproducir sonido de victoria
+    } else if (newScore >= 50) {
+      setLevel(2);
+    } else if (newScore >= 25) {
+      setLevel(1);
     }
-
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-
-    intervalRef.current = setInterval(() => {
-      const x = Math.floor(Math.random() * (width - 80));
-      const y = Math.floor(Math.random() * (height - 80));
-      setAnts((prevAnts) => {
-        if (prevAnts.length >= 3) {
-          endGame();
-          return prevAnts;
-        }
-        return [...prevAnts, { x, y, id: Date.now() }];
-      });
-    }, intervalTime);
   };
 
   const endGame = () => {
@@ -170,39 +186,58 @@ const Game: React.FC = () => {
 
   const handleAntPress = (id: number) => {
     setAnts((prevAnts) => prevAnts.filter((ant) => ant.id !== id));
-    // playAntSquishSound(); // Comenta esta línea para desactivar el sonido de "xd"
     setScore((prevScore) => {
       const newScore = prevScore + 10;
+      adjustLevel(newScore);
 
       if (newScore % 100 === 0) {
         playScoreSound();
-      }
-
-      if (newScore % 100 === 0) {
-        adjustDifficulty(newScore);
       }
 
       return newScore;
     });
   };
 
+  const resetGame = () => {
+    setIsGameOver(false);
+    setIsModeSelection(true);
+    setMode(null);
+    setScore(0);
+    setLevel(1);
+  };
+
   return (
     <ImageBackground
-      source={require('../assets/backgroundd.jpg')}
+      source={require('../assets/basura.png')}
       style={styles.background}
     >
       <View style={styles.container}>
-        {!isGameStarted && !isGameOver && (
-          <TouchableOpacity style={styles.startButton} onPress={startGame}>
-            <Text style={styles.startButtonText}>Start Game</Text>
+        {isModeSelection && (
+          <TouchableOpacity style={styles.startButton} onPress={() => setIsModeSelection(false)}>
+            <Text style={styles.startButtonText}>Modo de Juego</Text>
           </TouchableOpacity>
         )}
+        {!isModeSelection && !isGameStarted && !isGameOver && (
+          <>
+            <TouchableOpacity style={styles.startButton} onPress={() => startGame('Noob')}>
+              <Text style={styles.startButtonText}>Noob</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.startButton} onPress={() => startGame('Pro')}>
+              <Text style={styles.startButtonText}>Pro</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.startButton} onPress={() => startGame('Master')}>
+              <Text style={styles.startButtonText}>Master</Text>
+            </TouchableOpacity>
+          </>
+        )}
         <Text style={styles.score}>Puntuación: {score}</Text>
+        {isGameStarted && <Text style={styles.level}>LVL: {level}</Text>}
         {ants.map((ant) => (
           <Ant
             key={ant.id}
             position={{ left: ant.x, top: ant.y }}
             onPress={() => handleAntPress(ant.id)}
+            image={antImage}
           />
         ))}
         {isGameOver && (
@@ -213,11 +248,11 @@ const Game: React.FC = () => {
           >
             <View style={styles.modalBackground}>
               <View style={styles.modalContainer}>
-                <Text style={styles.modalText}>Game Over</Text>
+                <Text style={styles.modalText}>{score >= 100 ? '¡Felicidades, ganaste el juego!' : 'Game Over'}</Text>
                 <Text style={styles.modalText}>Puntuación final: {score}</Text>
                 <TouchableOpacity
                   style={styles.button}
-                  onPress={() => setIsGameOver(false)}
+                  onPress={resetGame}
                 >
                   <Text style={styles.buttonText}>Aceptar</Text>
                 </TouchableOpacity>
@@ -242,14 +277,52 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   score: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     position: 'absolute',
-    top: 50,
+    top: 70,
+    left: 10,
     fontSize: 24,
+    fontFamily: 'Pixel',
     color: 'black',
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
-    fontFamily: 'Pixel'
+    marginVertical: 10,
+  },
+  level: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    position: 'absolute',
+    top: 130,
+    left: 10,
+    fontSize: 24,
+    fontFamily: 'Pixel',
+    color: 'black',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginVertical: 10,
+  },
+  startButton: {
+    backgroundColor: 'rgba(50, 200, 50, 0.9)',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginVertical: 10,
+    fontFamily: 'Pixel',
+  },
+  startButtonText: {
+    color: 'white',
+    fontFamily: 'Pixel',
+    fontSize: 20,
+  },
+  antContainer: {
+    position: 'absolute',
+    width: 80,
+    height: 80,
+  },
+  ant: {
+    width: '100%',
+    height: '100%',
   },
   modalBackground: {
     flex: 1,
@@ -258,38 +331,28 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
-    width: 300,
+    backgroundColor: '#fff',
     padding: 20,
-    backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
+    elevation: 5,
   },
   modalText: {
-    fontSize: 22,
+    fontFamily: 'Oswald',
+    fontSize: 24,
     marginBottom: 10,
-    fontFamily: 'Pixel'
   },
   button: {
-    marginTop: 20,
-    padding: 10,
-    backgroundColor: 'black',
+    backgroundColor: '#333',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
     borderRadius: 5,
+    marginTop: 10,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 22,
-    fontFamily: 'Pixel'
-  },
-  startButton: {
-    padding: 15,
-    backgroundColor: 'green',
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  startButtonText: {
-    color: 'white',
-    fontSize: 22,
-    fontFamily: 'Pixel'
+    fontFamily: 'Oswald',
+    fontSize: 20,
   },
 });
 

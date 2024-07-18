@@ -6,6 +6,7 @@ import { getDownloadURL, uploadBytesResumable, ref as refe } from 'firebase/stor
 import * as ImagePicker from 'expo-image-picker';
 import { auth, storage } from '../config/Config';
 import { useFonts } from 'expo-font';
+import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
 
 export default function RegistroScreen({ navigation }: any) {
   const [correo, setCorreo] = useState('');
@@ -13,6 +14,7 @@ export default function RegistroScreen({ navigation }: any) {
   const [edad, setEdad] = useState('');
   const [imageUri, setImageUri] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // Estado para visibilidad de contraseña
 
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
@@ -20,8 +22,7 @@ export default function RegistroScreen({ navigation }: any) {
     //'Ola': require('../assets/fonts/RubikPixels-Regular.ttf'),
   });
 
-  useEffect(() => {
-  }, [loaded, error]);
+  useEffect(() => {}, [loaded, error]);
 
   if (!loaded && !error) {
     return null;
@@ -154,14 +155,19 @@ export default function RegistroScreen({ navigation }: any) {
           placeholderTextColor="black" // Color del placeholder
           style={styles.input}
         />
-        <TextInput
-          placeholder='Ingresa contraseña'
-          onChangeText={setContrasenia}
-          secureTextEntry
-          value={contrasenia}
-          placeholderTextColor="black" // Color del placeholder
-          style={styles.input}
-        />
+        <View style={styles.passwordContainer}>
+          <TextInput
+            placeholder='Ingresa contraseña'
+            onChangeText={setContrasenia}
+            secureTextEntry={!showPassword} // Controla la visibilidad de la contraseña
+            value={contrasenia}
+            placeholderTextColor="black" // Color del placeholder
+            style={[styles.input, styles.passwordInput]} // Añade styles.passwordInput
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
+            <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="white" />
+          </TouchableOpacity>
+        </View>
         <TextInput
           placeholder='Ingrese edad'
           placeholderTextColor="black" // Color del placeholder
@@ -232,6 +238,18 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     paddingHorizontal: 20,
     //color: '#fff',
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: 10,
+    width: '105%', // Ajusta el contenedor para que tenga el mismo ancho que los otros inputs
+  },
+  passwordInput: {
+    flex: 1, // Permite que el TextInput ocupe el espacio restante
+  },
+  showPasswordButton: {
+    padding: 10,
   },
   buttonContainer: {
     flexDirection: 'row',

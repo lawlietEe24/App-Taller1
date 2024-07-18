@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "App-Taller1",
+    "name": "MATA - MATA",
     "slug": "App-Taller1",
     "version": "1.0.0",
-    "orientation": "all",
+    "orientation": "portrait",
     "icon": "./assets/images/mosca.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -26,7 +26,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "bc6d1df7-a3a3-4efb-8cd8-3309d5e89301"
+        "projectId": "0871b014-9fa0-45f0-b294-4a6d1c59e340"
       }
     },
     "plugins": [

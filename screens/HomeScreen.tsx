@@ -3,12 +3,14 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, A
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Audio } from 'expo-av';
 import { useFonts } from 'expo-font';
-import { auth } from '../config/Config'; // Asegúrate de importar tu configuración de Firebase
+import { auth } from '../config/Config';
+import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
 
 const HomeScreen = ({ navigation }: any) => {
   const [correo, setCorreo] = useState('');
   const [contrasenia, setContrasenia] = useState('');
   const [loginSound, setLoginSound] = useState<Audio.Sound | null>(null);
+  const [showPassword, setShowPassword] = useState(false); // Estado para visibilidad de contraseña
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
     'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
@@ -82,19 +84,22 @@ const HomeScreen = ({ navigation }: any) => {
           style={styles.input}
           value={correo}
         />
-        <TextInput
-          placeholder='Ingresa contraseña'
-          onChangeText={(texto) => setContrasenia(texto)}
-          style={styles.input}
-          placeholderTextColor="black"
-          secureTextEntry={true}
-          value={contrasenia}
-        />
-        
+        <View style={styles.passwordContainer}>
+          <TextInput
+            placeholder='Ingresa contraseña'
+            onChangeText={(texto) => setContrasenia(texto)}
+            style={[styles.input, styles.passwordInput]} // Añade styles.passwordInput
+            placeholderTextColor="black"
+            secureTextEntry={!showPassword} // Controla la visibilidad de la contraseña
+            value={contrasenia}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
+            <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="white" />
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity style={styles.btn} onPress={login}>
           <Text style={styles.btnText}>Iniciar sesión</Text>
         </TouchableOpacity>
-        
         <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
           <Text style={styles.registerText}>Registrarse</Text>
         </TouchableOpacity>
@@ -135,6 +140,18 @@ const styles = StyleSheet.create({
     borderColor: 'lightblue',
     borderWidth: 2,
     paddingHorizontal: 20,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: 10,
+    width: '105%', // Ajusta el contenedor para que tenga el mismo ancho que los otros inputs
+  },
+  passwordInput: {
+    flex: 1, // Permite que el TextInput ocupe el espacio restante
+  },
+  showPasswordButton: {
+    padding: 10,
   },
   btn: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',
