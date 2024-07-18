@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: 20,
   },
   title: {
@@ -241,7 +241,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     fontSize: 15,
-    height: 50,
+    height: 51,
     width: "100%",
     margin: 10,
     fontFamily: 'Oswald',
