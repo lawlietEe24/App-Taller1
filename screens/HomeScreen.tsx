@@ -7,7 +7,7 @@ import { auth } from '../config/Config';
 import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
 
 const HomeScreen = ({ navigation }: any) => {
-  const [correo, setCorreo] = useState('');
+  const [correoOUsuario, setCorreoOUsuario] = useState(''); // Estado para correo o nombre de usuario
   const [contrasenia, setContrasenia] = useState('');
   const [loginSound, setLoginSound] = useState<Audio.Sound | null>(null);
   const [showPassword, setShowPassword] = useState(false); // Estado para visibilidad de contraseña
@@ -28,7 +28,7 @@ const HomeScreen = ({ navigation }: any) => {
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('blur', () => {
-      setCorreo('');
+      setCorreoOUsuario('');
       setContrasenia('');
     });
 
@@ -36,7 +36,21 @@ const HomeScreen = ({ navigation }: any) => {
   }, [navigation]);
 
   function login() {
-    signInWithEmailAndPassword(auth, correo, contrasenia)
+    // Determina si el usuario ingresó un correo electrónico o un nombre de usuario
+    const isEmail = correoOUsuario.includes('@');
+    let signInPromise;
+
+    if (isEmail) {
+      signInPromise = signInWithEmailAndPassword(auth, correoOUsuario, contrasenia);
+    } else {
+      // Inicia sesión con nombre de usuario
+      // Aquí debes implementar tu lógica para iniciar sesión con nombre de usuario
+      // Esto puede implicar consultar la base de datos para obtener el correo electrónico asociado al nombre de usuario, etc.
+      // Por simplicidad, aquí solo se muestra la parte para correo electrónico
+      signInPromise = signInWithEmailAndPassword(auth, correoOUsuario, contrasenia); // Reemplaza con tu lógica real
+    }
+
+    signInPromise
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
@@ -77,12 +91,12 @@ const HomeScreen = ({ navigation }: any) => {
       <View style={styles.container}>
         <Text style={styles.title}>Iniciar Sesión</Text>
         <TextInput
-          placeholder='Ingresa tu correo electrónico'
-          onChangeText={(texto) => setCorreo(texto)}
+          placeholder='Ingresa tu correo electrónico o nombre de usuario'
+          onChangeText={(texto) => setCorreoOUsuario(texto)}
           keyboardType='email-address'
           placeholderTextColor="black"
           style={styles.input}
-          value={correo}
+          value={correoOUsuario}
         />
         <View style={styles.passwordContainer}>
           <TextInput

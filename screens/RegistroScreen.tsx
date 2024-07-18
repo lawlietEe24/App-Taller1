@@ -6,12 +6,13 @@ import { getDownloadURL, uploadBytesResumable, ref as refe } from 'firebase/stor
 import * as ImagePicker from 'expo-image-picker';
 import { auth, storage } from '../config/Config';
 import { useFonts } from 'expo-font';
-import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
+import { Ionicons } from '@expo/vector-icons';
 
 export default function RegistroScreen({ navigation }: any) {
   const [correo, setCorreo] = useState('');
   const [contrasenia, setContrasenia] = useState('');
   const [edad, setEdad] = useState('');
+  const [usuario, setUsuario] = useState('');
   const [imageUri, setImageUri] = useState('');
   const [uploading, setUploading] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // Estado para visibilidad de contraseña
@@ -19,7 +20,6 @@ export default function RegistroScreen({ navigation }: any) {
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
     'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
-    //'Ola': require('../assets/fonts/RubikPixels-Regular.ttf'),
   });
 
   useEffect(() => {}, [loaded, error]);
@@ -87,9 +87,9 @@ export default function RegistroScreen({ navigation }: any) {
   async function registro() {
     setUploading(true);
 
-    // Validar si los campos de correo, contraseña y edad están vacíos
-    if (!correo || !contrasenia || !edad) {
-      Alert.alert('Credenciales faltantes', 'Por favor, ingrese su correo, contraseña y edad');
+    // Validar si los campos de correo, contraseña, edad y usuario están vacíos
+    if (!correo || !contrasenia || !edad || !usuario) {
+      Alert.alert('Credenciales faltantes', 'Por favor, complete todos los campos.');
       setUploading(false);
       return;
     }
@@ -113,6 +113,7 @@ export default function RegistroScreen({ navigation }: any) {
         correo,
         edad,
         imageUrl,
+        usuario,
       });
 
       console.log('Datos guardados en la base de datos');
@@ -122,6 +123,7 @@ export default function RegistroScreen({ navigation }: any) {
       setCorreo('');
       setContrasenia('');
       setEdad('');
+      setUsuario('');
       setImageUri('');
 
       // Redirigir a la pantalla de inicio de sesión
@@ -152,29 +154,39 @@ export default function RegistroScreen({ navigation }: any) {
           onChangeText={setCorreo}
           keyboardType='email-address'
           value={correo}
-          placeholderTextColor="black" // Color del placeholder
+          placeholderTextColor="black"
           style={styles.input}
         />
+
         <View style={styles.passwordContainer}>
           <TextInput
             placeholder='Ingresa contraseña'
             onChangeText={setContrasenia}
-            secureTextEntry={!showPassword} // Controla la visibilidad de la contraseña
+            secureTextEntry={!showPassword}
             value={contrasenia}
-            placeholderTextColor="black" // Color del placeholder
-            style={[styles.input, styles.passwordInput]} // Añade styles.passwordInput
+            placeholderTextColor="black"
+            style={[styles.input, styles.passwordInput]}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
             <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="white" />
           </TouchableOpacity>
         </View>
+
         <TextInput
           placeholder='Ingrese edad'
-          placeholderTextColor="black" // Color del placeholder
+          placeholderTextColor="black"
           style={styles.input}
           value={edad}
           onChangeText={setEdad}
           keyboardType='numeric'
+        />
+
+        <TextInput
+          placeholder='Ingrese su nombre de usuario'
+          placeholderTextColor="black"
+          style={styles.input}
+          value={usuario}
+          onChangeText={setUsuario}
         />
 
         <View style={styles.buttonContainer}>
@@ -237,16 +249,15 @@ const styles = StyleSheet.create({
     borderColor: 'lightblue',
     borderWidth: 2,
     paddingHorizontal: 20,
-    //color: '#fff',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     margin: 10,
-    width: '105%', // Ajusta el contenedor para que tenga el mismo ancho que los otros inputs
+    width: '105%',
   },
   passwordInput: {
-    flex: 1, // Permite que el TextInput ocupe el espacio restante
+    flex: 1,
   },
   showPasswordButton: {
     padding: 10,

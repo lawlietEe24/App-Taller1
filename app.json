@@ -31,6 +31,18 @@
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    
+      "scores": {
+        "uniqueId1": {
+          "username": "player1",
+          "score": 30
+        },
+        "uniqueId2": {
+          "username": "player2",
+          "score": 40
+        }
+      }
+    
   }
 }
