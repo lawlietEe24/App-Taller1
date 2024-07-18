@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     padding: 20,
   },
   title: {
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     fontSize: 15,
-    height: 50,
+    height: 51,
     width: "100%",
     margin: 10,
     fontFamily: 'Oswald',
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     margin: 10,
-    width: '105%', // Ajusta el contenedor para que tenga el mismo ancho que los otros inputs
+    width: '104%', // Ajusta el contenedor para que tenga el mismo ancho que los otros inputs
   },
   passwordInput: {
     flex: 1, // Permite que el TextInput ocupe el espacio restante
