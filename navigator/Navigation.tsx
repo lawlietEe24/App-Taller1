@@ -31,6 +31,7 @@ const HomeStack = () => {
         <Stack.Screen name="Login" component={HomeScreen} />
         <Stack.Screen name="Registro" component={RegistroScreen} />
         <Stack.Screen name="Drawer" component={MyDrawer} /> 
+        <Stack.Screen name="Puntuacion" component={ScoresScreen} />
       </Stack.Navigator>
       </NavigationContainer>
     );

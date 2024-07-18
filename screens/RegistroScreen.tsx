@@ -6,7 +6,7 @@ import { getDownloadURL, uploadBytesResumable, ref as refe } from 'firebase/stor
 import * as ImagePicker from 'expo-image-picker';
 import { auth, storage } from '../config/Config';
 import { useFonts } from 'expo-font';
-import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
+import { Ionicons } from '@expo/vector-icons';
 
 export default function RegistroScreen({ navigation }: any) {
   const [correo, setCorreo] = useState('');
@@ -14,12 +14,11 @@ export default function RegistroScreen({ navigation }: any) {
   const [edad, setEdad] = useState('');
   const [imageUri, setImageUri] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Estado para visibilidad de contraseña
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
     'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
-    //'Ola': require('../assets/fonts/RubikPixels-Regular.ttf'),
   });
 
   useEffect(() => {}, [loaded, error]);
@@ -28,30 +27,30 @@ export default function RegistroScreen({ navigation }: any) {
     return null;
   }
 
-  async function pickImage() { 
-    let result = await ImagePicker.launchImageLibraryAsync({ 
-      mediaTypes: ImagePicker.MediaTypeOptions.All, 
-      allowsEditing: true, 
-      aspect: [4, 3], 
-      quality: 1, 
-    }); 
- 
-    if (!result.canceled) { 
-      setImageUri(result.assets[0].uri); 
-    } 
-  } 
- 
-  async function takePhoto() { 
-    let result = await ImagePicker.launchCameraAsync({ 
-      mediaTypes: ImagePicker.MediaTypeOptions.All, 
-      allowsEditing: true, 
-      aspect: [4, 3], 
-      quality: 1, 
-    }); 
- 
-    if (!result.canceled) { 
-      setImageUri(result.assets[0].uri); 
-    } 
+  async function pickImage() {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
+  }
+
+  async function takePhoto() {
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImageUri(result.assets[0].uri);
+    }
   }
 
   async function uploadImage(userId: string) {
@@ -87,14 +86,12 @@ export default function RegistroScreen({ navigation }: any) {
   async function registro() {
     setUploading(true);
 
-    // Validar si los campos de correo, contraseña y edad están vacíos
     if (!correo || !contrasenia || !edad) {
       Alert.alert('Credenciales faltantes', 'Por favor, ingrese su correo, contraseña y edad');
       setUploading(false);
       return;
     }
 
-    // Validar edad
     if (parseInt(edad) < 18) {
       Alert.alert('Edad insuficiente', 'Debe tener al menos 18 años para registrarse');
       setUploading(false);
@@ -118,15 +115,12 @@ export default function RegistroScreen({ navigation }: any) {
       console.log('Datos guardados en la base de datos');
       Alert.alert('Registro exitoso', 'El usuario ha sido registrado correctamente');
 
-      // Limpiar campos después de registro exitoso
       setCorreo('');
       setContrasenia('');
       setEdad('');
       setImageUri('');
 
-      // Redirigir a la pantalla de inicio de sesión
       navigation.navigate('Login');
-
     } catch (error) {
       console.error('Error en el registro:', error);
       Alert.alert('Error en el registro', 'Hubo un problema al registrar el usuario');
@@ -152,17 +146,17 @@ export default function RegistroScreen({ navigation }: any) {
           onChangeText={setCorreo}
           keyboardType='email-address'
           value={correo}
-          placeholderTextColor="black" // Color del placeholder
+          placeholderTextColor="black"
           style={styles.input}
         />
         <View style={styles.passwordContainer}>
           <TextInput
             placeholder='Ingresa contraseña'
             onChangeText={setContrasenia}
-            secureTextEntry={!showPassword} // Controla la visibilidad de la contraseña
+            secureTextEntry={!showPassword}
             value={contrasenia}
-            placeholderTextColor="black" // Color del placeholder
-            style={[styles.input, styles.passwordInput]} // Añade styles.passwordInput
+            placeholderTextColor="black"
+            style={[styles.input, styles.passwordInput]}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
             <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="white" />
@@ -170,7 +164,7 @@ export default function RegistroScreen({ navigation }: any) {
         </View>
         <TextInput
           placeholder='Ingrese edad'
-          placeholderTextColor="black" // Color del placeholder
+          placeholderTextColor="black"
           style={styles.input}
           value={edad}
           onChangeText={setEdad}
@@ -237,16 +231,15 @@ const styles = StyleSheet.create({
     borderColor: 'lightblue',
     borderWidth: 2,
     paddingHorizontal: 20,
-    //color: '#fff',
   },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     margin: 10,
-    width: '105%', // Ajusta el contenedor para que tenga el mismo ancho que los otros inputs
+    width: '105%',
   },
   passwordInput: {
-    flex: 1, // Permite que el TextInput ocupe el espacio restante
+    flex: 1,
   },
   showPasswordButton: {
     padding: 10,

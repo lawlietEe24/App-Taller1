@@ -12,7 +12,7 @@ const ScoresScreen: React.FC = () => {
 
   useEffect(() => {
     const fetchScores = async () => {
-      try {
+      try { 
         const savedScores = await AsyncStorage.getItem('scores');
         if (savedScores) {
           const parsedScores: Score[] = JSON.parse(savedScores);
