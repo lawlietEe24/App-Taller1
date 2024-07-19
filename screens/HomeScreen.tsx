@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ImageBackground, Alert, Dimensions } from 'react-native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { Audio } from 'expo-av';
 import { useFonts } from 'expo-font';
 import { auth } from '../config/Config';
-import { Ionicons } from '@expo/vector-icons'; // Importa Ionicons
+import { Ionicons } from '@expo/vector-icons';
 
-const HomeScreen = ({ navigation }: any) => {
-  const [correoOUsuario, setCorreoOUsuario] = useState(''); // Estado para correo o nombre de usuario
+const db = getFirestore();
+
+const HomeScreen = ({ navigation } : any) => {
+  const [correoOUsuario, setCorreoOUsuario] = useState('');
   const [contrasenia, setContrasenia] = useState('');
   const [loginSound, setLoginSound] = useState<Audio.Sound | null>(null);
-  const [showPassword, setShowPassword] = useState(false); // Estado para visibilidad de contraseña
+  const [showPassword, setShowPassword] = useState(false);
+
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
     'Oswald': require('../assets/fonts/BebasNeue-Regular.ttf'),
@@ -35,31 +39,38 @@ const HomeScreen = ({ navigation }: any) => {
     return unsubscribe;
   }, [navigation]);
 
-  function login() {
-    // Determina si el usuario ingresó un correo electrónico o un nombre de usuario
-    const isEmail = correoOUsuario.includes('@');
-    let signInPromise;
+  const fetchEmailFromUsername = async (username:any) => {
+    const q = query(collection(db, 'users'), where('username', '==', username));
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      return userDoc.data().email;
+    }
+    return null;
+  };
 
-    if (isEmail) {
-      signInPromise = signInWithEmailAndPassword(auth, correoOUsuario, contrasenia);
-    } else {
-      // Inicia sesión con nombre de usuario
-      // Aquí debes implementar tu lógica para iniciar sesión con nombre de usuario
-      // Esto puede implicar consultar la base de datos para obtener el correo electrónico asociado al nombre de usuario, etc.
-      // Por simplicidad, aquí solo se muestra la parte para correo electrónico
-      signInPromise = signInWithEmailAndPassword(auth, correoOUsuario, contrasenia); // Reemplaza con tu lógica real
+  const login = async () => {
+    const isEmail = correoOUsuario.includes('@');
+    let email = correoOUsuario;
+
+    if (!isEmail) {
+      email = await fetchEmailFromUsername(correoOUsuario);
+      if (!email) {
+        Alert.alert('Error de usuario', 'El usuario ingresado no existe');
+        return;
+      }
     }
 
-    signInPromise
+    signInWithEmailAndPassword(auth, email, contrasenia)
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
         if (loginSound) {
-          loginSound.replayAsync(); // Reproduce el sonido al iniciar sesión
+          loginSound.replayAsync();
         }
         navigation.navigate('Drawer');
       })
-      .catch((error: any) => {
+      .catch((error) => {
         const errorCode = error.code;
         let titulo = '';
         let mensaje = '';
@@ -77,11 +88,13 @@ const HomeScreen = ({ navigation }: any) => {
 
         Alert.alert(titulo, mensaje);
       });
-  }
+  };
 
   if (!loaded && !error) {
     return null;
   }
+
+  const { height, width } = Dimensions.get('window');
 
   return (
     <ImageBackground
@@ -95,23 +108,23 @@ const HomeScreen = ({ navigation }: any) => {
           onChangeText={(texto) => setCorreoOUsuario(texto)}
           keyboardType='email-address'
           placeholderTextColor="black"
-          style={styles.input}
+          style={[styles.input, { width: width * 0.8 }]}
           value={correoOUsuario}
         />
-        <View style={styles.passwordContainer}>
+        <View style={[styles.passwordContainer, { width: width * 0.8 }]}>
           <TextInput
             placeholder='Ingresa contraseña'
             onChangeText={(texto) => setContrasenia(texto)}
-            style={[styles.input, styles.passwordInput]} // Añade styles.passwordInput
+            style={[styles.input, styles.passwordInput]}
             placeholderTextColor="black"
-            secureTextEntry={!showPassword} // Controla la visibilidad de la contraseña
+            secureTextEntry={!showPassword}
             value={contrasenia}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.showPasswordButton}>
             <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="white" />
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.btn} onPress={login}>
+        <TouchableOpacity style={[styles.btn, { width: width * 0.5 }]} onPress={login}>
           <Text style={styles.btnText}>Iniciar sesión</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Registro')}>
@@ -147,7 +160,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
     fontSize: 15,
     height: 50,
-    width: "100%",
     margin: 10,
     fontFamily: 'Oswald',
     borderRadius: 10,
@@ -159,17 +171,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     margin: 10,
-    width: '105%', // Ajusta el contenedor para que tenga el mismo ancho que los otros inputs
   },
   passwordInput: {
-    flex: 1, // Permite que el TextInput ocupe el espacio restante
+    flex: 1,
   },
   showPasswordButton: {
     padding: 10,
   },
   btn: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',
-    width: 151,
     height: 50,
     borderRadius: 25,
     alignItems: 'center',

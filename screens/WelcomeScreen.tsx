@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Pixel'
   },
   btnContainer: {
-    marginTop: 400, // Añadir margen superior para separar los botones del subtítulo
+    marginTop: 350, // Añadir margen superior para separar los botones del subtítulo
   },
   btn: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',

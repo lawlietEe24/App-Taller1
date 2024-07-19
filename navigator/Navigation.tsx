@@ -9,7 +9,7 @@ import RegistroScreen from '../screens/RegistroScreen'
 import Game from '../components/Game'
 import WelcomeScreen from '../screens/WelcomeScreen'
 import PerfilScreen from '../screens/SettingsScreen';
-import PuntuacionesScreen from '../screens/ScoreScreen';
+//import PuntuacionesScreen from '../screens/ScoreScreen';
 
 const Stack = createNativeStackNavigator()
 const Drawer = createDrawerNavigator(); 
@@ -19,8 +19,8 @@ function MyDrawer() {
   return ( 
     <Drawer.Navigator screenOptions={{ headerShown:true}} initialRouteName="MATA- MATA" > 
         <Drawer.Screen name='MATA- MATA' component={Game}/> 
-        <Drawer.Screen name='Perfil' component={PerfilScreen}/> 
-        <Drawer.Screen name='Puntuaciones' component={PuntuacionesScreen}/> 
+        <Drawer.Screen name='PERFIL' component={PerfilScreen}/> 
+        {/* //<Drawer.Screen name='Puntuaciones' component={PuntuacionesScreen}/>  */}
     </Drawer.Navigator> 
   ); 
 } 

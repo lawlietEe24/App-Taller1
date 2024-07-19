@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, ImageBackground, Modal, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, Dimensions, ImageBackground, Modal, TouchableOpacity, Image, StatusBar } from 'react-native';
 import { Audio } from 'expo-av';
 import { useFonts } from 'expo-font';
 
 const { width, height } = Dimensions.get('window');
-const topBoundary = height * 0.5;
+const topBoundary = height * 0.4; // Ajustar el límite superior
 
 interface AntType {
   id: number;
@@ -15,7 +15,7 @@ interface AntType {
 interface AntProps {
   position: { left: number; top: number };
   onPress: () => void;
-  image: any; // Cambié a any para facilitar la asignación dinámica de imagen
+  image: any;
 }
 
 const Ant: React.FC<AntProps> = ({ position, onPress, image }) => {
@@ -41,7 +41,7 @@ const Game: React.FC = () => {
   const [gameOverSound, setGameOverSound] = useState<Audio.Sound | null>(null);
   const [scoreSound, setScoreSound] = useState<Audio.Sound | null>(null);
   const [startGameSound, setStartGameSound] = useState<Audio.Sound | null>(null);
-  const [antImage, setAntImage] = useState<any>(require('../assets/mosca3.png')); // Cambié a any para facilitar la asignación dinámica de imagen
+  const [antImage, setAntImage] = useState<any>(require('../assets/mosca3.png'));
 
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
@@ -162,14 +162,14 @@ const Game: React.FC = () => {
   };
 
   const adjustLevel = (newScore: number) => {
-    if (newScore >= 100) {
+    if (newScore >= 400) {
       setLevel(3);
       setIsGameStarted(false);
       setIsGameOver(true);
-      playScoreSound(); // Reproducir sonido de victoria
-    } else if (newScore >= 50) {
+      playScoreSound();
+    } else if (newScore >= 250) {
       setLevel(2);
-    } else if (newScore >= 25) {
+    } else if (newScore >= 100) {
       setLevel(1);
     }
   };
@@ -230,8 +230,8 @@ const Game: React.FC = () => {
             </TouchableOpacity>
           </>
         )}
-        <Text style={styles.score}>Puntuación: {score}</Text>
-        {isGameStarted && <Text style={styles.level}>LVL: {level}</Text>}
+        <Text style={[styles.score, { top: height * 0.1 }]}>Puntuación: {score}</Text>
+        {isGameStarted && <Text style={[styles.level, { top: height * 0.15 }]}>LVL: {level}</Text>}
         {ants.map((ant) => (
           <Ant
             key={ant.id}
@@ -248,7 +248,7 @@ const Game: React.FC = () => {
           >
             <View style={styles.modalBackground}>
               <View style={styles.modalContainer}>
-                <Text style={styles.modalText}>{score >= 100 ? '¡Felicidades, ganaste el juego!' : 'Game Over'}</Text>
+                <Text style={styles.modalText}>{score >= 200 ? '¡Felicidades, ganaste el juego!' : 'Game Over'}</Text>
                 <Text style={styles.modalText}>Puntuación final: {score}</Text>
                 <TouchableOpacity
                   style={styles.button}
@@ -276,53 +276,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  score: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    position: 'absolute',
-    top: 70,
-    left: 10,
-    fontSize: 24,
-    fontFamily: 'Pixel',
-    color: 'black',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginVertical: 10,
-  },
-  level: {
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    position: 'absolute',
-    top: 130,
-    left: 10,
-    fontSize: 24,
-    fontFamily: 'Pixel',
-    color: 'black',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginVertical: 10,
-  },
   startButton: {
-    backgroundColor: 'rgba(50, 200, 50, 0.9)',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    margin: 10,
+    padding: 15,
+    backgroundColor: '#4CAF50',
     borderRadius: 5,
-    marginVertical: 10,
-    fontFamily: 'Pixel',
   },
   startButtonText: {
     color: 'white',
-    fontFamily: 'Pixel',
     fontSize: 20,
+    fontFamily: 'Oswald',
+  },
+  score: {
+    position: 'absolute',
+    color: 'white',
+    fontSize: 24,
+    fontFamily: 'Pixel',
+  },
+  level: {
+    position: 'absolute',
+    color: 'white',
+    fontSize: 24,
+    fontFamily: 'Pixel',
   },
   antContainer: {
     position: 'absolute',
-    width: 80,
-    height: 80,
   },
   ant: {
-    width: '100%',
-    height: '100%',
+    width: 50,
+    height: 50,
   },
   modalBackground: {
     flex: 1,
@@ -331,28 +313,27 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContainer: {
-    backgroundColor: '#fff',
+    width: width * 0.8,
     padding: 20,
+    backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
-    elevation: 5,
   },
   modalText: {
+    fontSize: 20,
+    marginBottom: 20,
     fontFamily: 'Oswald',
-    fontSize: 24,
-    marginBottom: 10,
   },
   button: {
-    backgroundColor: '#333',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
     marginTop: 10,
+    padding: 10,
+    backgroundColor: '#4CAF50',
+    borderRadius: 5,
   },
   buttonText: {
-    color: '#fff',
+    color: 'white',
+    fontSize: 18,
     fontFamily: 'Oswald',
-    fontSize: 20,
   },
 });
 

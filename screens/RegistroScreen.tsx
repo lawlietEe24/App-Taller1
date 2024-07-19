@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ImageBackground, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, ImageBackground, Image, Dimensions, Platform } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { getDatabase, ref, set } from 'firebase/database';
 import { getDownloadURL, uploadBytesResumable, ref as refe } from 'firebase/storage';
@@ -8,6 +8,8 @@ import { auth, storage } from '../config/Config';
 import { useFonts } from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 
+const { width, height } = Dimensions.get('window');
+
 export default function RegistroScreen({ navigation }: any) {
   const [correo, setCorreo] = useState('');
   const [contrasenia, setContrasenia] = useState('');
@@ -15,7 +17,7 @@ export default function RegistroScreen({ navigation }: any) {
   const [usuario, setUsuario] = useState('');
   const [imageUri, setImageUri] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // Estado para visibilidad de contraseña
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loaded, error] = useFonts({
     'Pixel': require('../assets/fonts/PixelifySans-Medium.ttf'),
@@ -87,14 +89,12 @@ export default function RegistroScreen({ navigation }: any) {
   async function registro() {
     setUploading(true);
 
-    // Validar si los campos de correo, contraseña, edad y usuario están vacíos
     if (!correo || !contrasenia || !edad || !usuario) {
       Alert.alert('Credenciales faltantes', 'Por favor, complete todos los campos.');
       setUploading(false);
       return;
     }
 
-    // Validar edad
     if (parseInt(edad) < 18) {
       Alert.alert('Edad insuficiente', 'Debe tener al menos 18 años para registrarse');
       setUploading(false);
@@ -119,14 +119,12 @@ export default function RegistroScreen({ navigation }: any) {
       console.log('Datos guardados en la base de datos');
       Alert.alert('Registro exitoso', 'El usuario ha sido registrado correctamente');
 
-      // Limpiar campos después de registro exitoso
       setCorreo('');
       setContrasenia('');
       setEdad('');
       setUsuario('');
       setImageUri('');
 
-      // Redirigir a la pantalla de inicio de sesión
       navigation.navigate('Login');
 
     } catch (error) {
@@ -226,7 +224,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
     padding: 20,
   },
   title: {
@@ -240,8 +238,8 @@ const styles = StyleSheet.create({
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 15,
-    height: 51,
+    fontSize: width * 0.04,
+    height: height * 0.07,
     width: "100%",
     margin: 10,
     fontFamily: 'Oswald',
@@ -253,7 +251,7 @@ const styles = StyleSheet.create({
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    margin: 10,
+    margin: 2,
     width: '105%',
   },
   passwordInput: {
@@ -270,8 +268,8 @@ const styles = StyleSheet.create({
   },
   btn: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',
-    width: 150,
-    height: 50,
+    width: width * 0.4,
+    height: height * 0.07,
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
@@ -283,7 +281,7 @@ const styles = StyleSheet.create({
   },
   btnText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: width * 0.05,
     fontFamily: 'Oswald',
   },
   imagePreviewContainer: {
@@ -291,15 +289,15 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   imagePreview: {
-    width: 200,
-    height: 200,
+    width: width * 0.5,
+    height: width * 0.5,
     borderRadius: 10,
     marginBottom: 10,
   },
   deleteButton: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',
-    width: 151,
-    height: 50,
+    width: width * 0.4,
+    height: height * 0.07,
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
@@ -311,13 +309,13 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: width * 0.05,
     fontFamily: 'Oswald'
   },
   registerButton: {
     backgroundColor: 'rgba(255, 68, 68, 0.8)',
-    width: 150,
-    height: 50,
+    width: width * 0.4,
+    height: height * 0.07,
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
